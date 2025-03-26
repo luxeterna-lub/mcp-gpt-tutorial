@@ -81,13 +81,13 @@ class MCPClient:
         while True:
             reply = response.choices[0].message
 
-            if reply.get("content"):
-                final_text.append(reply["content"])
+            if reply.content:
+                final_text.append(reply.content)
 
-            if reply.get("tool_calls"):
-                for tool_call in reply["tool_calls"]:
-                    tool_name = tool_call["function"]["name"]
-                    tool_args = tool_call["function"]["arguments"]
+            if reply.tool_calls:
+                for tool_call in reply.tool_calls:
+                    tool_name = tool_call.function.name
+                    tool_args = tool_call.function.arguments
 
                     # Execute tool call
                     parsed_args = json.loads(tool_args)
@@ -97,13 +97,13 @@ class MCPClient:
                     # Continue conversation with tool results
                     messages.append({
                         "role": "assistant",
-                        "content": reply.get("content", "")
+                        "content": reply.content or ""
                     })
                     messages.append({
                         "role": "tool",
-                        "tool_call_id": tool_call["id"],
+                        "tool_call_id": tool_call.id,
                         "name": tool_name,
-                        "content": result.content
+                        "content": result.content,
                     })
 
                 # Get next response from OpenAI
