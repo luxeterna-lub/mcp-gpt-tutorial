@@ -1,3 +1,3 @@
-# MCP tutorial
+# MCP Quickstart for OpenAI API / GPT
 
-Study note for https://modelcontextprotocol.io/introduction
+This is the OpenAI API / GPT implementation for the official MCP (Model Context Protocol) [Quickstart](https://modelcontextprotocol.io/introduction).
