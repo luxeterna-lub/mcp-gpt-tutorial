@@ -68,7 +68,7 @@ class MCPClient:
         } for tool in response.tools]
 
         # Initial OpenAI API call
-        response = self.client.chat.completions.create(
+        response = self.openai.chat.completions.create(
             model="gpt-4",
             messages=messages,
             tools=available_tools,
@@ -107,7 +107,7 @@ class MCPClient:
                     })
 
                 # Get next response from OpenAI
-                response = self.client.chat.completions.create(
+                response = self.openai.chat.completions.create(
                     model="gpt-4",
                     messages=messages,
                 )
