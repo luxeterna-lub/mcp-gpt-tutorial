@@ -5,7 +5,7 @@ from contextlib import AsyncExitStack
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-import openai
+from openai import OpenAI
 from dotenv import load_dotenv
 import json
 
@@ -17,6 +17,7 @@ class MCPClient:
         # Initialize session and client objects
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
+        self.openai = OpenAI()
 
     async def connect_to_server(self, server_script_path: str):
         """Connect to an MCP server
@@ -67,11 +68,11 @@ class MCPClient:
         } for tool in response.tools]
 
         # Initial OpenAI API call
-        response = openai.ChatCompletion.create(
+        response = self.client.chat.completions.create(
             model="gpt-4",
             messages=messages,
             tools=available_tools,
-            tool_choice="auto"
+            tool_choice="auto",
         )
 
         # Process response and handle tool calls
@@ -106,7 +107,7 @@ class MCPClient:
                     })
 
                 # Get next response from OpenAI
-                response = openai.ChatCompletion.create(
+                response = self.client.chat.completions.create(
                     model="gpt-4",
                     messages=messages,
                 )
