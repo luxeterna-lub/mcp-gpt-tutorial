@@ -81,10 +81,30 @@ class MCPClient:
         while True:
             reply = response.choices[0].message
 
-            if reply.content:
+            if reply.content and not reply.tool_calls:
                 final_text.append(reply.content)
+                messages.append({
+                    "role": "assistant",
+                    "content": reply.content
+                })
 
             if reply.tool_calls:
+                # Add the assistant message that triggered the tool calls
+                messages.append({
+                    "role": "assistant",
+                    "tool_calls": [
+                        {
+                            "id": tool_call.id,
+                            "type": "function",
+                            "function": {
+                                "name": tool_call.function.name,
+                                "arguments": tool_call.function.arguments
+                            }
+                        }
+                        for tool_call in reply.tool_calls
+                    ]
+                })
+
                 for tool_call in reply.tool_calls:
                     tool_name = tool_call.function.name
                     tool_args = tool_call.function.arguments
@@ -94,11 +114,7 @@ class MCPClient:
                     result = await self.session.call_tool(tool_name, parsed_args)
                     final_text.append(f"[Calling tool {tool_name} with args {parsed_args}]")
 
-                    # Continue conversation with tool results
-                    messages.append({
-                        "role": "assistant",
-                        "content": reply.content or ""
-                    })
+                    # Add tool response message
                     messages.append({
                         "role": "tool",
                         "tool_call_id": tool_call.id,
